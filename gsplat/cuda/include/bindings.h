@@ -575,6 +575,17 @@ rasterize_to_weights_tensor(
     const torch::Tensor &pixel_weights  // [C, H, W]
 );
 
+torch::Tensor get_local2j_ids_bool(
+    int image_height,
+	int image_width,
+	int mp_rank,
+	int mp_world_size,
+	const torch::Tensor& means2D,
+	const torch::Tensor& radii,
+	const torch::Tensor& dist_global_strategy,
+	bool avoid_pixel_all2all
+);
+
 } // namespace gsplat
 
 #endif // GSPLAT_CUDA_BINDINGS_H

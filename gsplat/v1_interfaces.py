@@ -325,3 +325,44 @@ def spherical_harmonics(
         dirs=viewdirs,
         coeffs=coeffs,
     )
+
+def get_local2j_ids_bool(
+    image_height: int,
+    image_width: int,
+    mp_rank: int,
+    mp_world_size: int,
+    means2D: Float[Tensor, "P 2"],
+    radii,
+    dist_global_strategy_tensor,
+    avoid_pixel_all2all
+) -> Float[Tensor, "P mp_world_size"]:
+    """Get local to global ids for the given image size and means2D.
+
+    Args:
+        image_height: Image height.
+        image_width: Image width.
+        mp_rank: Current rank.
+        mp_world_size: Total number of ranks.
+        means2D: The 2D means of the Gaussians. [P, 2]
+
+    Returns:
+        local2j_ids_bool: Local to global ids boolean tensor. [P, mp_world_size]
+    """
+    P = means2D.size(0)
+
+    assert P > 0, "No Gaussians to rasterize"
+
+    args = (
+        image_height,
+        image_width,
+        mp_rank,
+        mp_world_size,
+        means2D,
+        radii,
+        dist_global_strategy_tensor,
+        avoid_pixel_all2all,
+    )
+
+    local2j_ids_bool = wrapper._make_lazy_cuda_func("get_local2j_ids_bool")(*args)
+
+    return local2j_ids_bool
